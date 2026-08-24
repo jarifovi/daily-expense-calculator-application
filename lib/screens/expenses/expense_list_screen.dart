@@ -425,9 +425,9 @@ class _FilterChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.lightGreen.withOpacity(0.15),
+        color: AppTheme.lightGreen.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTheme.lightGreen.withOpacity(0.4)),
+        border: Border.all(color: AppTheme.lightGreen.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -475,7 +475,7 @@ class _CategoryChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? chipColor.withOpacity(0.2) : AppTheme.surfaceDark,
+          color: isSelected ? chipColor.withValues(alpha: 0.2) : AppTheme.surfaceDark,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? chipColor : AppTheme.dividerColor,
