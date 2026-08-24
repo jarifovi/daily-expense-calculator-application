@@ -77,3 +77,18 @@ lib/
 * **Database:** Google Cloud Firestore (NoSQL)
 * **State Management:** Provider
 * **Charts:** FL Chart
+
+---
+
+## 👤 Author & Creator
+
+* **Developer & Maintainer:** [jarifovi](https://github.com/jarifovi)
+
+This application is fully designed, built, and maintained by **jarifovi**. If you download, fork, clone, or build upon this project, you must retain this credit and link back to the original author.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
