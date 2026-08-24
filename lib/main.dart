@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -14,9 +15,15 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const ExpenseCalculatorApp());
 }
-//ExpenseCalculatorApp is the root widget of the application , it is a stateless widget
-//MultiProvider widget is used to provide the state of the application to the widgets that need it 
-//Consumer<ThemeProvider> widget is used to consume the state of the application and rebuild the widget when the state changes
+
+class CustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+      };
+}
 
 class ExpenseCalculatorApp extends StatelessWidget {
   const ExpenseCalculatorApp({super.key});
@@ -40,6 +47,7 @@ class ExpenseCalculatorApp extends StatelessWidget {
           return MaterialApp(
             title: 'Expense Calculator',
             debugShowCheckedModeBanner: false,
+            scrollBehavior: CustomScrollBehavior(),
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.isDarkMode
