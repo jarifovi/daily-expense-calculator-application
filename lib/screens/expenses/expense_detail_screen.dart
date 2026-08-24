@@ -63,10 +63,10 @@ class ExpenseDetailScreen extends StatelessWidget { //this will build the expens
               width: double.infinity,
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: categoryColor.withOpacity(0.1),
+                color: categoryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: categoryColor.withOpacity(0.3),
+                  color: categoryColor.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -76,7 +76,7 @@ class ExpenseDetailScreen extends StatelessWidget { //this will build the expens
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: categoryColor.withOpacity(0.2),
+                      color: categoryColor.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(categoryIcon, color: categoryColor, size: 34),
