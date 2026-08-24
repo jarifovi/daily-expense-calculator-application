@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../models/expense_model.dart';
 import '../utils/app_constants.dart';
 import '../utils/app_theme.dart';
+import 'gravity_tilt_card.dart';
 
 //Expense Card is a widget that displays the expenses in a card format with edit and delete functionality
 class ExpenseCard extends StatelessWidget {
@@ -65,86 +66,90 @@ class ExpenseCard extends StatelessWidget {
         ),
         child: GestureDetector( //GestureDetector is used to detect the tap event on the expense card
           onTap: onTap,
-          child: Container( //Card is used to display the expense in a card format
-            decoration: BoxDecoration(
-              color: AppTheme.cardDark,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppTheme.dividerColor, width: 1),
-            ),
-            padding: const EdgeInsets.all(14), //Padding is used to add space between the card and its content  
-            child: Row(
-              children: [
-                // Category Icon is used to display the icon of the category 
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: categoryColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+          child: GravityTiltCard(
+            maxTiltAngle: 6.0,
+            glowColor: categoryColor,
+            child: Container( //Card is used to display the expense in a card format
+              decoration: BoxDecoration(
+                color: AppTheme.cardDark,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppTheme.dividerColor, width: 1),
+              ),
+              padding: const EdgeInsets.all(14), //Padding is used to add space between the card and its content  
+              child: Row(
+                children: [
+                  // Category Icon is used to display the icon of the category 
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: categoryColor.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(categoryIcon, color: categoryColor, size: 22),
                   ),
-                  child: Icon(categoryIcon, color: categoryColor, size: 22),
-                ),
-                const SizedBox(width: 14),
-                // Name & Category
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        expense.name,
-                        style: GoogleFonts.poppins(
-                          color: AppTheme.textPrimary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                  const SizedBox(width: 14),
+                  // Name & Category
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense.name,
+                          style: GoogleFonts.poppins(
+                            color: AppTheme.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: categoryColor.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              expense.category,
-                              style: GoogleFonts.poppins(
-                                color: categoryColor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: categoryColor.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                expense.category,
+                                style: GoogleFonts.poppins(
+                                  color: categoryColor,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            DateFormat('MMM d, yyyy').format(expense.date),
-                            style: GoogleFonts.poppins(
-                              color: AppTheme.textHint,
-                              fontSize: 11,
+                            const SizedBox(width: 8),
+                            Text(
+                              DateFormat('MMM d, yyyy').format(expense.date),
+                              style: GoogleFonts.poppins(
+                                color: AppTheme.textHint,
+                                fontSize: 11,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                // Amount
-                Text(
-                  '\$${expense.amount.toStringAsFixed(2)}',
-                  style: GoogleFonts.poppins(
-                    color: AppTheme.lightGreen,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                  const SizedBox(width: 10),
+                  // Amount
+                  Text(
+                    '\$${expense.amount.toStringAsFixed(2)}',
+                    style: GoogleFonts.poppins(
+                      color: AppTheme.lightGreen,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
