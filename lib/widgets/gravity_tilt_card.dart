@@ -6,6 +6,7 @@
 
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class GravityTiltCard extends StatefulWidget {
   final Widget child;
@@ -30,58 +31,109 @@ class GravityTiltCard extends StatefulWidget {
 class _GravityTiltCardState extends State<GravityTiltCard> with SingleTickerProviderStateMixin {
   double _tiltX = 0.0;
   double _tiltY = 0.0;
-  bool _isHovered = false;
-  
-  // Hover position to shift shadow/glow direction
   double _shadowOffsetX = 0.0;
   double _shadowOffsetY = 0.0;
+  double _hoverProgress = 0.0;
+  
+  double _targetTiltX = 0.0;
+  double _targetTiltY = 0.0;
+  double _targetShadowOffsetX = 0.0;
+  double _targetShadowOffsetY = 0.0;
+  bool _isHovered = false;
+
+  late final Ticker _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = createTicker(_onTick);
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  void _onTick(Duration elapsed) {
+    // Damped interpolation factor (smoothness filter)
+    const double lerpFactor = 0.12;
+    
+    setState(() {
+      _tiltX += (_targetTiltX - _tiltX) * lerpFactor;
+      _tiltY += (_targetTiltY - _tiltY) * lerpFactor;
+      _shadowOffsetX += (_targetShadowOffsetX - _shadowOffsetX) * lerpFactor;
+      _shadowOffsetY += (_targetShadowOffsetY - _shadowOffsetY) * lerpFactor;
+      
+      final double targetProgress = _isHovered ? 1.0 : 0.0;
+      _hoverProgress += (targetProgress - _hoverProgress) * lerpFactor;
+    });
+
+    // Stop the ticker when animation rests to save CPU/GPU cycles
+    if (!_isHovered && 
+        _tiltX.abs() < 0.0001 && 
+        _tiltY.abs() < 0.0001 && 
+        _hoverProgress < 0.0001) {
+      _ticker.stop();
+      setState(() {
+        _tiltX = 0.0;
+        _tiltY = 0.0;
+        _shadowOffsetX = 0.0;
+        _shadowOffsetY = 0.0;
+        _hoverProgress = 0.0;
+      });
+    }
+  }
 
   void _onHover(PointerEvent event) {
     final size = context.size;
     if (size == null) return;
 
-    // Calculate relative coordinates from center (-0.5 to 0.5)
     final localPos = event.localPosition;
     final centerX = size.width / 2;
     final centerY = size.height / 2;
     
-    final relX = (localPos.dx - centerX) / centerX; // horizontal relative pos
-    final relY = (localPos.dy - centerY) / centerY; // vertical relative pos
+    final relX = (localPos.dx - centerX) / centerX;
+    final relY = (localPos.dy - centerY) / centerY;
 
-    // Translate to tilt angles (rad)
     final maxRad = widget.maxTiltAngle * pi / 180;
     
-    setState(() {
-      _tiltX = -relY * maxRad; // tilting around X axis based on Y movement
-      _tiltY = relX * maxRad;  // tilting around Y axis based on X movement
-      _shadowOffsetX = -relX * widget.glowIntensity;
-      _shadowOffsetY = -relY * widget.glowIntensity;
-    });
+    _targetTiltX = -relY * maxRad;
+    _targetTiltY = relX * maxRad;
+    _targetShadowOffsetX = -relX * widget.glowIntensity;
+    _targetShadowOffsetY = -relY * widget.glowIntensity;
+
+    if (!_ticker.isActive) {
+      _ticker.start();
+    }
   }
 
   void _onHoverEnter(PointerEvent event) {
-    setState(() {
-      _isHovered = true;
-    });
+    _isHovered = true;
+    if (!_ticker.isActive) {
+      _ticker.start();
+    }
   }
 
   void _onHoverExit(PointerEvent event) {
-    setState(() {
-      _isHovered = false;
-      _tiltX = 0.0;
-      _tiltY = 0.0;
-      _shadowOffsetX = 0.0;
-      _shadowOffsetY = 0.0;
-    });
+    _isHovered = false;
+    _targetTiltX = 0.0;
+    _targetTiltY = 0.0;
+    _targetShadowOffsetX = 0.0;
+    _targetShadowOffsetY = 0.0;
+    if (!_ticker.isActive) {
+      _ticker.start();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final double currentScale = 1.0 + (0.03 * _hoverProgress);
     final matrix = Matrix4.identity()
-      ..setEntry(3, 2, 0.0015) // perspective distortion
+      ..setEntry(3, 2, 0.001) // perspective distortion
       ..rotateX(_tiltX)
       ..rotateY(_tiltY)
-      ..scaleByDouble(_isHovered ? 1.04 : 1.0, _isHovered ? 1.04 : 1.0, 1.0, 1.0);
+      ..scaleByDouble(currentScale, currentScale, 1.0, 1.0);
 
     return MouseRegion(
       onEnter: _onHoverEnter,
@@ -90,34 +142,27 @@ class _GravityTiltCardState extends State<GravityTiltCard> with SingleTickerProv
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: widget.onTap,
-        child: TweenAnimationBuilder<Matrix4>(
-          duration: Duration(milliseconds: _isHovered ? 50 : 250),
-          curve: Curves.easeOutCubic,
-          tween: Matrix4Tween(begin: Matrix4.identity(), end: matrix),
-          builder: (context, currentMatrix, childWidget) {
-            return Transform(
-              transform: currentMatrix,
-              alignment: FractionalOffset.center,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: _isHovered 
-                          ? widget.glowColor.withValues(alpha: 0.4) 
-                          : Colors.black.withValues(alpha: 0.3),
-                      blurRadius: _isHovered ? 25.0 : 12.0,
-                      spreadRadius: _isHovered ? 2.0 : -2.0,
-                      offset: Offset(_shadowOffsetX, _shadowOffsetY),
-                    ),
-                  ],
+        child: Transform(
+          transform: matrix,
+          alignment: FractionalOffset.center,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Color.lerp(
+                    Colors.black.withValues(alpha: 0.3),
+                    widget.glowColor.withValues(alpha: 0.35),
+                    _hoverProgress,
+                  )!,
+                  blurRadius: 12.0 + (13.0 * _hoverProgress),
+                  spreadRadius: -2.0 + (4.0 * _hoverProgress),
+                  offset: Offset(_shadowOffsetX, _shadowOffsetY),
                 ),
-                child: childWidget,
-              ),
-            );
-          },
-          child: widget.child,
+              ],
+            ),
+            child: widget.child,
+          ),
         ),
       ),
     );
