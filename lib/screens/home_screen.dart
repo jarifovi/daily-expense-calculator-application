@@ -8,6 +8,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/app_theme.dart';
 import '../../utils/app_constants.dart';
+import '../widgets/gravity_tilt_card.dart';
 import 'expenses/expense_list_screen.dart';
 import 'expenses/expense_detail_screen.dart';
 import 'expenses/add_edit_expense_screen.dart';
@@ -427,42 +428,45 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.cardDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppTheme.dividerColor, width: 1),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
+    return GravityTiltCard(
+      glowColor: color,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardDark,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppTheme.dividerColor, width: 1),
+        ),
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            value,
-            style: GoogleFonts.poppins(
-              color: AppTheme.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: GoogleFonts.poppins(
+                color: AppTheme.textPrimary,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              color: AppTheme.textSecondary,
-              fontSize: 11,
+            Text(
+              title,
+              style: GoogleFonts.poppins(
+                color: AppTheme.textSecondary,
+                fontSize: 11,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -485,74 +489,77 @@ class _DashboardBudgetCard extends StatelessWidget {
     final isOver = spent > budget;
     final pct = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.cardDark,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isOver
-              ? AppTheme.errorRed.withOpacity(0.4)
-              : AppTheme.dividerColor,
-          width: 1,
-        ),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                month,
-                style: GoogleFonts.poppins(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                ),
-              ),
-              Text(
-                isOver ? 'Over Budget!' : 'On Track',
-                style: GoogleFonts.poppins(
-                  color: isOver ? AppTheme.errorRed : AppTheme.lightGreen,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+    return GravityTiltCard(
+      glowColor: isOver ? AppTheme.errorRed : AppTheme.lightGreen,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardDark,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isOver
+                ? AppTheme.errorRed.withValues(alpha: 0.4)
+                : AppTheme.dividerColor,
+            width: 1,
           ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: pct,
-              minHeight: 8,
-              backgroundColor: AppTheme.surfaceDark,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                isOver ? AppTheme.errorRed : AppTheme.lightGreen,
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  month,
+                  style: GoogleFonts.poppins(
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  isOver ? 'Over Budget!' : 'On Track',
+                  style: GoogleFonts.poppins(
+                    color: isOver ? AppTheme.errorRed : AppTheme.lightGreen,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: pct,
+                minHeight: 8,
+                backgroundColor: AppTheme.surfaceDark,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isOver ? AppTheme.errorRed : AppTheme.lightGreen,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _statItem(
-                'Budget',
-                '\$${budget.toStringAsFixed(2)}',
-                AppTheme.textSecondary,
-              ),
-              _statItem(
-                'Spent',
-                '\$${spent.toStringAsFixed(2)}',
-                AppTheme.lightGreen,
-              ),
-              _statItem(
-                isOver ? 'Over' : 'Left',
-                '\$${remaining.abs().toStringAsFixed(2)}',
-                isOver ? AppTheme.errorRed : AppTheme.accentGreen,
-              ),
-            ],
-          ),
-        ],
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _statItem(
+                  'Budget',
+                  '\$${budget.toStringAsFixed(2)}',
+                  AppTheme.textSecondary,
+                ),
+                _statItem(
+                  'Spent',
+                  '\$${spent.toStringAsFixed(2)}',
+                  AppTheme.lightGreen,
+                ),
+                _statItem(
+                  isOver ? 'Over' : 'Left',
+                  '\$${remaining.abs().toStringAsFixed(2)}',
+                  isOver ? AppTheme.errorRed : AppTheme.accentGreen,
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
