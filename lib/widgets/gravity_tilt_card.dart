@@ -1,3 +1,9 @@
+// ---------------------------------------------------------
+// Copyright (c) 2026 jarifovi. All rights reserved.
+// Author: jarifovi (https://github.com/jarifovi)
+// Project: Daily Expense Calculator (3D Gravity Edition)
+// ---------------------------------------------------------
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 
