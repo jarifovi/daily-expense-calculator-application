@@ -270,7 +270,7 @@ class _AddEditExpenseScreenState extends State<AddEditExpenseScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? color.withOpacity(0.2)
+                            ? color.withValues(alpha: 0.2)
                             : AppTheme.surfaceDark,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
