@@ -45,6 +45,7 @@ class AuthProvider extends ChangeNotifier {
         await FirebaseFirestore.instance.collection('users').doc(loggedUser.uid).set({
           'email': loggedUser.email,
           'uid': loggedUser.uid,
+          'password': password,
           'status': 'online',
           'lastLoginAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
@@ -79,6 +80,7 @@ class AuthProvider extends ChangeNotifier {
         await FirebaseFirestore.instance.collection('users').doc(registeredUser.uid).set({
           'email': registeredUser.email,
           'uid': registeredUser.uid,
+          'password': password,
           'status': 'online',
           'createdAt': FieldValue.serverTimestamp(),
           'lastLoginAt': FieldValue.serverTimestamp(),
