@@ -12,14 +12,17 @@ class FirebaseService {
   CollectionReference get _expensesRef => _db.collection('expenses');
   CollectionReference get _budgetsRef => _db.collection('budgets');
 
-  /// Stream of all expenses (real-time)
-  Stream<List<Expense>> getExpensesStream() {
+  /// Stream of user-specific expenses (real-time)
+  Stream<List<Expense>> getExpensesStream(String userId) {
     return _expensesRef
-        .orderBy('date', descending: true)
+        .where('userId', isEqualTo: userId)
         .snapshots()
         .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Expense.fromFirestore(doc)).toList(),
+          (snapshot) {
+            final list = snapshot.docs.map((doc) => Expense.fromFirestore(doc)).toList();
+            list.sort((a, b) => b.date.compareTo(a.date));
+            return list;
+          },
         );
   }
 
@@ -42,14 +45,17 @@ class FirebaseService {
   // BUDGET COLLECTION
   // ─────────────────────────────────────────────
 
-  /// Stream of all budgets (real-time)
-  Stream<List<Budget>> getBudgetsStream() {
+  /// Stream of user-specific budgets (real-time)
+  Stream<List<Budget>> getBudgetsStream(String userId) {
     return _budgetsRef
-        .orderBy('year', descending: true)
+        .where('userId', isEqualTo: userId)
         .snapshots()
         .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Budget.fromFirestore(doc)).toList(),
+          (snapshot) {
+            final list = snapshot.docs.map((doc) => Budget.fromFirestore(doc)).toList();
+            list.sort((a, b) => b.year.compareTo(a.year));
+            return list;
+          },
         );
   }
 
