@@ -1,4 +1,5 @@
 //budget provider is used to store the data in the budget collection in the cloud_firestore database.
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/budget_model.dart';
@@ -8,6 +9,7 @@ import '../utils/app_constants.dart';
 
 class BudgetProvider extends ChangeNotifier { //allowing any listening UI widget to rebuild when we update the data.
   final FirebaseService _firebaseService = FirebaseService();
+  StreamSubscription<List<Budget>>? _budgetSubscription;
 
   List<Budget> _budgets = []; //list of budgets
   bool _isLoading = false; //loading state 
@@ -34,16 +36,15 @@ class BudgetProvider extends ChangeNotifier { //allowing any listening UI widget
   // ─────────────────────────────────────────────
   // LOAD BUDGETS (Real-time stream)
   // ─────────────────────────────────────────────
-//loading the budgets from the firebase_service.
   void loadBudgets() {
     _isLoading = true;
     notifyListeners();
 
-    _firebaseService.getBudgetsStream().listen(
+    _budgetSubscription?.cancel();
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    _budgetSubscription = _firebaseService.getBudgetsStream(currentUserId).listen(
       (budgets) { 
-        final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-        // Filter: only show budgets belonging to this specific user
-        _budgets = budgets.where((b) => b.userId == currentUserId).toList();
+        _budgets = budgets;
         _isLoading = false;
         _errorMessage = '';
         notifyListeners();
@@ -166,4 +167,10 @@ class BudgetProvider extends ChangeNotifier { //allowing any listening UI widget
 
   /// All months list for dropdown
   static List<String> get allMonths => AppConstants.months;
+
+  @override
+  void dispose() {
+    _budgetSubscription?.cancel();
+    super.dispose();
+  }
 }
