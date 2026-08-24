@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/expense_model.dart';
@@ -6,6 +7,7 @@ import '../utils/app_constants.dart';
 
 class ExpenseProvider extends ChangeNotifier { //allowing any listening UI widget to rebuild when we update the data. 
   final FirebaseService _firebaseService = FirebaseService();
+  StreamSubscription<List<Expense>>? _expenseSubscription;
 
   List<Expense> _allExpenses = []; //list of expenses
   List<Expense> _filteredExpenses = []; //list of filtered expenses
@@ -45,16 +47,15 @@ class ExpenseProvider extends ChangeNotifier { //allowing any listening UI widge
   // ─────────────────────────────────────────────
   // LOAD EXPENSES (Real-time stream)
   // ─────────────────────────────────────────────
-//Real-time stream for loading expenses crud operations
   void loadExpenses() {
     _isLoading = true;
     notifyListeners();
 
-    _firebaseService.getExpensesStream().listen(
+    _expenseSubscription?.cancel();
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
+    _expenseSubscription = _firebaseService.getExpensesStream(currentUserId).listen(
       (expenses) {
-        final currentUserId = FirebaseAuth.instance.currentUser?.uid ?? '';
-        // Filter: only show expenses belonging to this specific user
-        _allExpenses = expenses.where((e) => e.userId == currentUserId).toList();
+        _allExpenses = expenses;
         _applyFiltersAndSort();
         _isLoading = false;
         _errorMessage = '';
@@ -284,5 +285,11 @@ class ExpenseProvider extends ChangeNotifier { //allowing any listening UI widge
     return _allExpenses
         .where((e) => e.date.month == monthIndex && e.date.year == year)
         .length;
+  }
+
+  @override
+  void dispose() {
+    _expenseSubscription?.cancel();
+    super.dispose();
   }
 }
