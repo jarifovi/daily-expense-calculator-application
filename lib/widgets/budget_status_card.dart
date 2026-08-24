@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../utils/app_theme.dart';
+import 'gravity_tilt_card.dart';
 
 class BudgetStatusCard extends StatelessWidget {
   final double budgetAmount;
@@ -23,98 +24,101 @@ class BudgetStatusCard extends StatelessWidget {
         ? (spent / budgetAmount).clamp(0.0, 1.0)
         : 0.0;
     // Budget Status Card is a widget that displays the budget status of the user 
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTheme.cardDark,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isOverBudget
-              ? AppTheme.errorRed.withOpacity(0.5)
-              : AppTheme.dividerColor,
-          width: 1,
+    return GravityTiltCard(
+      glowColor: isOverBudget ? AppTheme.errorRed : AppTheme.lightGreen,
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.cardDark,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isOverBudget
+                ? AppTheme.errorRed.withValues(alpha: 0.5)
+                : AppTheme.dividerColor,
+            width: 1,
+          ),
         ),
-      ),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Month header
-          // Month header is used to display the month and year and the percentage of the budget used
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                monthYear,
-                style: GoogleFonts.poppins(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: isOverBudget
-                      ? AppTheme.errorRed.withOpacity(0.15)
-                      : AppTheme.lightGreen.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${usagePct.toStringAsFixed(0)}%',
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Month header
+            // Month header is used to display the month and year and the percentage of the budget used
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  monthYear,
                   style: GoogleFonts.poppins(
-                    color: isOverBudget
-                        ? AppTheme.errorRed
-                        : AppTheme.lightGreen,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
+                    color: AppTheme.textSecondary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Progress bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: LinearProgressIndicator(
-              value: progressValue,
-              minHeight: 8,
-              backgroundColor: AppTheme.surfaceDark,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                isOverBudget ? AppTheme.errorRed : AppTheme.lightGreen,
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isOverBudget
+                        ? AppTheme.errorRed.withValues(alpha: 0.15)
+                        : AppTheme.lightGreen.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${usagePct.toStringAsFixed(0)}%',
+                    style: GoogleFonts.poppins(
+                      color: isOverBudget
+                          ? AppTheme.errorRed
+                          : AppTheme.lightGreen,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Progress bar
+            ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: LinearProgressIndicator(
+                value: progressValue,
+                minHeight: 8,
+                backgroundColor: AppTheme.surfaceDark,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  isOverBudget ? AppTheme.errorRed : AppTheme.lightGreen,
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          // Budget / Spent / Remaining rows
-          _buildRow(
-            'Budget',
-            '\$${budgetAmount.toStringAsFixed(2)}',
-            AppTheme.textSecondary,
-          ),
-          const SizedBox(height: 8),
-          _buildRow(
-            'Spent',
-            '\$${spent.toStringAsFixed(2)}',
-            AppTheme.lightGreen,
-          ),
-          const SizedBox(height: 8),
-          if (isOverBudget)
+            const SizedBox(height: 16),
+            // Budget / Spent / Remaining rows
             _buildRow(
-              'Over Budget',
-              '\$${(-remaining).toStringAsFixed(2)}',
-              AppTheme.errorRed,
-            )
-          else
-            _buildRow(
-              'Remaining',
-              '\$${remaining.toStringAsFixed(2)}',
-              AppTheme.accentGreen,
+              'Budget',
+              '\$${budgetAmount.toStringAsFixed(2)}',
+              AppTheme.textSecondary,
             ),
-        ],
+            const SizedBox(height: 8),
+            _buildRow(
+              'Spent',
+              '\$${spent.toStringAsFixed(2)}',
+              AppTheme.lightGreen,
+            ),
+            const SizedBox(height: 8),
+            if (isOverBudget)
+              _buildRow(
+                'Over Budget',
+                '\$${(-remaining).toStringAsFixed(2)}',
+                AppTheme.errorRed,
+              )
+            else
+              _buildRow(
+                'Remaining',
+                '\$${remaining.toStringAsFixed(2)}',
+                AppTheme.accentGreen,
+              ),
+          ],
+        ),
       ),
     );
   }
